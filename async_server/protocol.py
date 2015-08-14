@@ -6,7 +6,7 @@ class BaseMsg(object):
         self.form = form
         self.payload = payload
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
         raise NotImplementedError
 
 
@@ -31,7 +31,7 @@ class BaseProtocol(object):
 
 class JsonMsg(BaseMsg):
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
         return {
             'form': self.form,
             'payload':self. payload
