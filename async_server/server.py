@@ -1,29 +1,16 @@
 from asyncio import coroutine, start_server
 from .async_utils import launch
 
-from . import protocol
-
 class Server(object):
 
-    def __init__(self, host, port):
+    def __init__(self, host, port, protocol):
         self.host = host
         self.port = port
         self.server = None
+        self.protocol = protocol()
 
     def process_request(self, msg):
-        end = False
-        p = protocol.unpack(msg)
-
-        response = protocol.JsonProtocol(form='response')
-        if p.form == 'echo':
-            response.payload = p.payload
-        elif p.form == 'close':
-            response.payload = "Thanks and bye!"
-            end = True
-        else:
-            response.payload = 'Wut?!?'
-
-        return response, end
+        return self.protocol.process_request(msg)
 
     @coroutine
     def connected(self, reader, writer):
@@ -36,8 +23,7 @@ class Server(object):
 
             response, end = self.process_request(msg)
 
-            res = protocol.pack(response)
-            writer.write(bytes("-> %s\r\n" % res, "utf8"))
+            writer.write(bytes("-> %s\r\n" % response, "utf8"))
             yield from writer.drain()
 
             if end:

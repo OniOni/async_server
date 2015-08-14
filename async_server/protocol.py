@@ -1,6 +1,6 @@
 import json
 
-class BaseProtocol(object):
+class BaseMsg(object):
 
     def __init__(self, form=None, payload=None):
         self.form = form
@@ -9,7 +9,27 @@ class BaseProtocol(object):
     def to_dict(self):
         raise NotImplementedError
 
-class JsonProtocol(BaseProtocol):
+
+class BaseProtocol(object):
+
+    def pack(self, form, payload) -> str:
+        raise NotImplementedError
+
+    def unpack(self, string: str):
+        raise NotImplementedError
+
+    def process_request(self, req) -> (str, bool):
+        msg = self.unpack(req)
+
+        try:
+            res, end = getattr(self, msg.form)(msg.payload)
+        except KeyError:
+            raise NotImplementedError
+
+        return self.pack(*res), end
+
+
+class JsonMsg(BaseMsg):
 
     def to_dict(self):
         return {
@@ -17,14 +37,17 @@ class JsonProtocol(BaseProtocol):
             'payload':self. payload
         }
 
-def pack(obj: BaseProtocol) -> str:
-    return json.dumps(obj.to_dict())
 
-def unpack(string: str) -> BaseProtocol:
-    try:
-        data = json.loads(string)
-        form, protocol = data['form'], data.get('payload', None)
-    except ValueError:
-        form, protocol = 'error', None
+class JsonProtocol(BaseProtocol):
 
-    return JsonProtocol(form, protocol)
+    def pack(self, form, payload) -> str:
+        return json.dumps(JsonMsg(form, payload).to_dict())
+
+    def unpack(self, string: str):
+        try:
+            data = json.loads(string)
+            form, protocol = data['form'], data.get('payload', None)
+        except ValueError:
+            form, protocol = 'error', None
+
+        return JsonMsg(form, protocol)
