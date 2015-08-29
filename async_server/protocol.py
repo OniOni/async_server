@@ -22,10 +22,10 @@ class BaseProtocol(object):
         msg = self.unpack(req)
 
         try:
-            res, end = getattr(self, msg.form)(msg.payload)
+            res, end = getattr(self, "do_%s" % msg.form)(msg.payload)
         except AttributeError:
             raise NotImplementedError(
-                "%s handler not implemented" % msg.form
+                "do_%s handler not implemented" % msg.form
             )
 
         return self.pack(*res), end
