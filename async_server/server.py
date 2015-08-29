@@ -1,4 +1,4 @@
-from asyncio import coroutine, start_server
+from asyncio import start_server
 from .async_utils import launch
 
 class Server(object):
@@ -12,10 +12,9 @@ class Server(object):
     def process_request(self, msg):
         return self.protocol.process_request(msg)
 
-    @coroutine
-    def connected(self, reader, writer):
+    async def connected(self, reader, writer):
         while True:
-            data = yield from reader.read(500)
+            data = await reader.read(500)
             try:
                 msg = data.decode()
             except UnicodeDecodeError:
@@ -24,7 +23,7 @@ class Server(object):
             response, end = self.process_request(msg)
 
             writer.write(bytes("-> %s\r\n" % response, "utf8"))
-            yield from writer.drain()
+            await writer.drain()
 
             if end:
                 break
@@ -36,8 +35,7 @@ class Server(object):
             launch(start_server, self.connected,
                    self.host, self.port)
 
-    @coroutine
-    def stop(self):
+    async def stop(self):
         if self.server:
             self.server.close()
-            yield from self.server.wait_closed()
+            await self.server.wait_closed()
