@@ -8,6 +8,10 @@ class MyProtocol(JsonProtocol):
     def quit(self, payload):
         return (('Bye', None), True)
 
+    def error(self, payload):
+        return (('Error', 'Could not process payload (%s)' % payload),
+                False)
+
 
 def setup():
     from .server import Server
