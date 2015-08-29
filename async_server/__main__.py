@@ -2,13 +2,13 @@ from .protocol import JsonProtocol
 
 class MyProtocol(JsonProtocol):
 
-    def hello(self, payload):
+    def do_hello(self, payload):
         return (('Cheers', payload), False)
 
-    def quit(self, payload):
+    def do_quit(self, payload):
         return (('Bye', None), True)
 
-    def error(self, payload):
+    def do_error(self, payload):
         return (('Error', 'Could not process payload (%s)' % payload),
                 False)
 
