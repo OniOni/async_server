@@ -23,8 +23,10 @@ class BaseProtocol(object):
 
         try:
             res, end = getattr(self, msg.form)(msg.payload)
-        except KeyError:
-            raise NotImplementedError
+        except AttributeError:
+            raise NotImplementedError(
+                "%s handler not implemented" % msg.form
+            )
 
         return self.pack(*res), end
 
@@ -48,6 +50,6 @@ class JsonProtocol(BaseProtocol):
             data = json.loads(string)
             form, protocol = data['form'], data.get('payload', None)
         except ValueError:
-            form, protocol = 'error', None
+            form, protocol = 'error', string
 
         return JsonMsg(form, protocol)
