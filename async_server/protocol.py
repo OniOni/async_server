@@ -24,9 +24,7 @@ class BaseProtocol(object):
         try:
             res, end = getattr(self, "do_%s" % msg.form)(msg.payload)
         except AttributeError:
-            raise NotImplementedError(
-                "do_%s handler not implemented" % msg.form
-            )
+            res, end  = ('error', "Could not process '%s'" % msg.form), False
 
         return self.pack(*res), end
 
