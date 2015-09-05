@@ -6,10 +6,6 @@ class BaseMsg(object):
         self.form = form
         self.payload = payload
 
-    def to_dict(self) -> dict:
-        raise NotImplementedError
-
-
 class BaseProtocol(object):
 
     def pack(self, form, payload) -> str:
@@ -51,3 +47,17 @@ class JsonProtocol(BaseProtocol):
             form, protocol = 'error', string
 
         return JsonMsg(form, protocol)
+
+
+class TextProtocol(BaseProtocol):
+
+    def pack(self, form, payload) -> str:
+        return "%s:%s" % (form, payload)
+
+    def unpack(self, string: str):
+        try:
+            form, protocol = [s.strip() for s in string.split(':')]
+        except Exception as e:
+            form, protocol = 'error', str(e)
+
+        return BaseMsg(form, protocol)
