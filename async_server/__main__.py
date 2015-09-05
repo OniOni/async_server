@@ -1,6 +1,6 @@
-from .protocol import JsonProtocol
+from .protocol import TextProtocol
 
-class MyProtocol(JsonProtocol):
+class MyProtocol(object):
 
     def do_hello(self, payload):
         return (('Cheers', payload), False)
@@ -12,10 +12,12 @@ class MyProtocol(JsonProtocol):
         return (('Error', 'Could not process payload (%s)' % payload),
                 False)
 
+class MyTextProtocol(MyProtocol, TextProtocol):
+    pass
 
 def setup():
     from .server import Server
-    s = Server('127.0.0.1', 8888, MyProtocol)
+    s = Server('127.0.0.1', 8888, MyTextProtocol)
     coro = s.start()
 
     return locals()
