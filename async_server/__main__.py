@@ -1,16 +1,15 @@
-from .protocol import TextProtocol
+from .protocol import TextProtocol, response
 
 class MyProtocol(object):
 
     def do_hello(self, payload):
-        return (('Cheers', payload), False)
+        return response('Cheers', payload)
 
     def do_quit(self, payload):
-        return (('Bye', None), True)
+        return response('Bye', None, end=True)
 
     def do_error(self, payload):
-        return (('Error', 'Could not process payload (%s)' % payload),
-                False)
+        return response('Error', 'Could not process payload (%s)' % payload)
 
 class MyTextProtocol(MyProtocol, TextProtocol):
     pass

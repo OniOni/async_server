@@ -61,3 +61,7 @@ class TextProtocol(BaseProtocol):
             form, protocol = 'error', str(e)
 
         return BaseMsg(form, protocol)
+
+
+def response(form, payload, end=False):
+    return ((form, payload), end)
