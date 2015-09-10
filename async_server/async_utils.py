@@ -1,24 +1,22 @@
 from functools import partial
 import asyncio
 
-_eventloop = asyncio.get_event_loop()
-_coros = []
-
-def launch(f, *args, **kwargs):
-    _coros.append(partial(f, *args, **kwargs)())
 
 class Loop(object):
 
     def __init__(self, loop):
         self.loop = loop
+        self._coros = []
 
     def start(self):
-        global _coros
-        self.loop.run_until_complete(asyncio.wait(_coros))
+        self.loop.run_until_complete(asyncio.wait(self._coros))
         try:
             self.loop.run_forever()
         except KeyboardInterrupt:
             pass
+
+    def launch(self, f, *a, **k):
+        self._coros.append(f(*a, **k))
 
     def close(self, fs=None):
         if fs:
@@ -26,4 +24,6 @@ class Loop(object):
 
         self.loop.close()
 
+_eventloop = asyncio.get_event_loop()
 eventloop = Loop(_eventloop)
+launch = partial(eventloop.launch)
